@@ -26,9 +26,9 @@ final class RequestFactory
         $result
             ->setCurrency($payment->getCurrency())
             ->setAmount($payment->getAmount());
-            // @todo add them based on how it gets initialized
-            //->setPosId($this->posId)
-            //->setIsSandbox($this->isSandbox);
+        // @todo add them based on how it gets initialized
+        //->setPosId($this->posId)
+        //->setIsSandbox($this->isSandbox);
 
         // @todo check if these apply to SimplePay
 //        if (isset($options['return_url'])) {
