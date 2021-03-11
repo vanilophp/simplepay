@@ -6,8 +6,8 @@
 [![Packagist downloads](https://img.shields.io/packagist/dt/vanilo/simplepay.svg?style=flat-square)](https://packagist.org/packages/vanilo/simplepay)
 [![MIT Software License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
 
-This library enables [SimplePay](https://simplepay.hu/)  
-for [Vanilo Payments](https://vanilo.io/docs/master/payments).
+This library enables [SimplePay](https://simplepay.hu/) for
+[Vanilo Payments](https://vanilo.io/docs/master/payments).
 
 Being a [Concord Module](https://konekt.dev/concord/1.9/modules) it is intended to be used by
 Laravel Applications.
