@@ -20,14 +20,20 @@ use Vanilo\Payment\Contracts\Payment;
 use Vanilo\Payment\Contracts\PaymentGateway;
 use Vanilo\Payment\Contracts\PaymentRequest;
 use Vanilo\Payment\Contracts\PaymentResponse;
+use Vanilo\Simplepay\Concerns\HasSimplepayInteraction;
 use Vanilo\Simplepay\Factories\RequestFactory;
+use Vanilo\Simplepay\Factories\ResponseFactory;
 use Vanilo\Simplepay\Messages\SimplepayPaymentResponse;
 
 class SimplepayPaymentGateway implements PaymentGateway
 {
+    use HasSimplepayInteraction;
+
     public const DEFAULT_ID = 'simplepay';
 
     private ?RequestFactory $requestFactory = null;
+
+    private ?ResponseFactory $responseFactory = null;
 
     public static function getName(): string
     {
@@ -38,10 +44,10 @@ class SimplepayPaymentGateway implements PaymentGateway
     {
         if (null === $this->requestFactory) {
             $this->requestFactory = new RequestFactory(
-                // $this->posId,
-                // $this->returnUrl,
-                // $this->cancelUrl,
-                // $this->isSandbox
+                 $this->merchanId,
+                 $this->secretKey,
+                 $this->isSandbox,
+                 $this->returnUrl
             );
         }
 
@@ -50,7 +56,16 @@ class SimplepayPaymentGateway implements PaymentGateway
 
     public function processPaymentResponse(Request $request, array $options = []): PaymentResponse
     {
-        return new SimplepayPaymentResponse($request, $this->posId, $this->isSandbox);
+        if (null === $this->responseFactory) {
+            $this->responseFactory = new ResponseFactory(
+                $this->merchanId,
+                $this->secretKey,
+                $this->isSandbox,
+                $this->returnUrl
+            );
+        }
+
+        return $this->responseFactory->create($request, $options);
     }
 
     public function isOffline(): bool

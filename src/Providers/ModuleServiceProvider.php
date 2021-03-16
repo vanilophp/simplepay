@@ -34,15 +34,17 @@ class ModuleServiceProvider extends BaseModuleServiceProvider
         if ($this->config('bind', true)) {
             $this->app->bind(SimplepayPaymentGateway::class, function ($app) {
                 return new SimplepayPaymentGateway(
-                    $this->config('pos_id'),
-                    $this->config('sandbox')
+                    $this->config('merchant_id'),
+                    $this->config('secret_key'),
+                    $this->config('sandbox'),
+                    $this->config('return_url')
                 );
             });
         }
 
         $this->publishes([
             $this->getBasePath() . '/' . $this->concord->getConvention()->viewsFolder() =>
-            resource_path('views/vendor/simplepay'),
+                resource_path('views/vendor/simplepay'),
             'simplepay'
         ]);
     }

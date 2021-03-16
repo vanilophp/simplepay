@@ -14,32 +14,53 @@ declare(strict_types=1);
 
 namespace Vanilo\Simplepay\Messages;
 
-use Illuminate\Http\Request;
 use Vanilo\Payment\Contracts\PaymentResponse;
+use Vanilo\Simplepay\Models\ResponseStatus;
 
 class SimplepayPaymentResponse implements PaymentResponse
 {
-    private Request $request;
+    private string $response;
+
+    private string $signature;
 
     private string $paymentId;
 
+    private string $transactionId;
+
     private ?float $amountPaid = null;
 
-    public function __construct(Request $request, string $posId, bool $isSandbox)
+    private ResponseStatus $status;
+
+    public function __construct(string $response, string $signature)
     {
-        $this->request = $request;
-        $this->posId = $posId;
-        $this->isSandbox = $isSandbox;
+        $this->response  = $response;
+        $this->signature = $signature;
+
+        $this->resolve();
+    }
+
+    private function resolve(): void
+    {
+        $payload = json_decode(base64_decode($this->response, true));
+
+        $this->status        = ResponseStatus::create($payload->e);
+        $this->paymentId     = $payload->o;
+        $this->transactionId = (string)$payload->t;
     }
 
     public function wasSuccessful(): bool
     {
-        return true;
+        return $this->status->equals(ResponseStatus::SUCCESS());
+    }
+
+    public function getStatus(): ResponseStatus
+    {
+        return $this->status;
     }
 
     public function getMessage(): string
     {
-        return '';
+        return $this->status->value();
     }
 
     public function getTransactionId(): ?string

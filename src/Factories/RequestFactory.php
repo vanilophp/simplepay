@@ -15,29 +15,36 @@ declare(strict_types=1);
 namespace Vanilo\Simplepay\Factories;
 
 use Vanilo\Payment\Contracts\Payment;
+use Vanilo\Simplepay\Concerns\HasSimplepayInteraction;
 use Vanilo\Simplepay\Messages\SimplepayPaymentRequest;
 
 final class RequestFactory
 {
+    use HasSimplepayInteraction;
+
     public function create(Payment $payment, array $options = []): SimplepayPaymentRequest
     {
-        $result = new SimplepayPaymentRequest();
+        $result    = new SimplepayPaymentRequest();
+        $billPayer = $payment->getPayable()->getBillPayer();
 
         $result
+            ->setMerchanId($this->merchanId)
+            ->setSecretKey($this->secretKey)
+            ->setIsSandbox($this->isSandbox)
+            ->setReturnUrl($this->returnUrl)
             ->setCurrency($payment->getCurrency())
-            ->setAmount($payment->getAmount());
-        // @todo add them based on how it gets initialized
-        //->setPosId($this->posId)
-        //->setIsSandbox($this->isSandbox);
+            ->setAmount($payment->getAmount())
+            ->setPaymentId($payment->getPaymentId())
+            ->setEmail($billPayer->getEmail())
+            ->setName($billPayer->getFullName());
 
-        // @todo check if these apply to SimplePay
-//        if (isset($options['return_url'])) {
-//            $result->setReturnUrl($options['return_url']);
-//        }
-//
-//        if (isset($options['cancel_url'])) {
-//            $result->setCancelUrl($options['cancel_url']);
-//        }
+        if (isset($options['return_url'])) {
+            $result->setReturnUrl($options['return_url']);
+        }
+
+        if (isset($options['lang'])) {
+            $result->setLang($options['lang']);
+        }
 
         if (isset($options['view'])) {
             $result->setView($options['view']);
