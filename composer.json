@@ -28,7 +28,7 @@
         "ext-simplexml": "*"
     },
     "autoload": {
-        "classmap": ['sdk'],
+        "classmap": ["sdk"],
         "psr-4": {
             "Vanilo\\Simplepay\\": "src"
         }
