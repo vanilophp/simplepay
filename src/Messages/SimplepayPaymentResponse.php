@@ -39,7 +39,7 @@ class SimplepayPaymentResponse implements PaymentResponse
 
     public function __construct(string $merchanId, string $secretKey, bool $isSandbox, string $response, string $signature)
     {
-        $this->response  = $response;
+        $this->response = $response;
         $this->signature = $signature;
         $this->merchanId = $merchanId;
         $this->secretKey = $secretKey;
@@ -82,16 +82,16 @@ class SimplepayPaymentResponse implements PaymentResponse
     {
         $payload = json_decode(base64_decode($this->response, true));
 
-        $this->status        = ResponseStatus::create($payload->e);
-        $this->paymentId     = $payload->o;
-        $this->transactionId = (string)$payload->t;
+        $this->status = ResponseStatus::create($payload->e);
+        $this->paymentId = $payload->o;
+        $this->transactionId = (string) $payload->t;
 
         if ($this->wasSuccessful()) {
-            $query = new \SimplePayQuery;
+            $query = new \SimplePayQuery();
             $query->addConfig([
-                'HUF_MERCHANT'   => $this->merchanId,
+                'HUF_MERCHANT' => $this->merchanId,
                 'HUF_SECRET_KEY' => $this->secretKey,
-                'SANDBOX'        => $this->isSandbox
+                'SANDBOX' => $this->isSandbox
             ]);
 
             $query->addConfigData('merchantAccount', $this->merchanId);
@@ -99,7 +99,7 @@ class SimplepayPaymentResponse implements PaymentResponse
             $query->runQuery();
             $response = $query->getReturnData();
 
-            if(!Arr::get($response, 'responseSignatureValid', true)) {
+            if (!Arr::get($response, 'responseSignatureValid', true)) {
                 throw new InvalidSignatureException();
             }
 

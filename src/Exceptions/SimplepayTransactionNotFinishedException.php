@@ -6,5 +6,4 @@ namespace Vanilo\Simplepay\Exceptions;
 
 class SimplepayTransactionNotFinishedException extends \Exception
 {
-
 }
