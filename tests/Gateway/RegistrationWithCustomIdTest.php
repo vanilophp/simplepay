@@ -6,8 +6,8 @@ namespace Vanilo\Simplepay\Tests\Gateway;
 
 use Vanilo\Payment\Contracts\PaymentGateway;
 use Vanilo\Payment\PaymentGateways;
-use Vanilo\Simplepay\Tests\TestCase;
 use Vanilo\Simplepay\SimplepayPaymentGateway;
+use Vanilo\Simplepay\Tests\TestCase;
 
 class RegistrationWithCustomIdTest extends TestCase
 {
