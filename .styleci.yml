@@ -1,5 +1,8 @@
 preset: psr12
 risky: true
+finder:
+  exclude:
+    - "sdk"
 enabled:
   - align_phpdoc
   - alpha_ordered_imports

@@ -16,7 +16,13 @@ final class ResponseFactory
     public function create(Request $request, array $options = []): SimplepayPaymentResponse
     {
         if ($request->get('r') && $request->get('s')) {
-            return new SimplepayPaymentResponse($request->get('r'), $request->get('s'));
+            return new SimplepayPaymentResponse(
+                $this->merchanId,
+                $this->secretKey,
+                $this->isSandbox,
+                $request->get('r'),
+                $request->get('s')
+            );
         }
 
         throw new MalformedSimplepayResponseException();
