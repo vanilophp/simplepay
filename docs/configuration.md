@@ -5,8 +5,10 @@
 The following `.env` parameters can be set in order to work with this package.
 
 ```dotenv
-SIMPLEPAY_POS_ID=xyz
 SIMPLEPAY_SANDBOX=true
+SIMPLEPAY_SECRET_KEY=secret-key
+SIMPLEPAY_MERCHANT_ID=merchant-id
+SIMPLEPAY_RETURN_URL=http://app.com/return'
 ```
 
 ## Registration with Payments Module
@@ -115,9 +117,10 @@ typically in the `AppServiceProvider::boot()` method:
 ```php
 $this->app->bind(SimplepayPaymentGateway::class, function ($app) {
     return new SimplepayPaymentGateway(
-        config('vanilo.simplepay.pos_id'),     // You can use any source
-        config('vanilo.simplepay.return_url'), // other than config()
-        config('vanilo.simplepay.sandbox')     // for passing args
+        $this->config('merchant_id'),     // You can use any source
+        $this->config('secret_key'),      // other than config()
+        $this->config('sandbox'),         // for passing args
+        $this->config('return_url')   
     );
 });
 ```
