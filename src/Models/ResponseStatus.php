@@ -8,8 +8,8 @@ use Konekt\Enum\Enum;
 
 class ResponseStatus extends Enum
 {
-    const SUCCESS = 'SUCCESS';
-    const CANCEL  = 'CANCEL';
-    const FAIL    = 'FAIL';
-    const TIMEOUT = 'TIMEOUT';
+    public const SUCCESS = 'SUCCESS';
+    public const CANCEL = 'CANCEL';
+    public const FAIL = 'FAIL';
+    public const TIMEOUT = 'TIMEOUT';
 }

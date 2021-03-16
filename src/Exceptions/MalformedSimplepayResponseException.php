@@ -6,5 +6,4 @@ namespace Vanilo\Simplepay\Exceptions;
 
 final class MalformedSimplepayResponseException extends \Exception
 {
-
 }

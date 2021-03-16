@@ -33,19 +33,10 @@ class SimplepayPaymentResponse implements PaymentResponse
 
     public function __construct(string $response, string $signature)
     {
-        $this->response  = $response;
+        $this->response = $response;
         $this->signature = $signature;
 
         $this->resolve();
-    }
-
-    private function resolve(): void
-    {
-        $payload = json_decode(base64_decode($this->response, true));
-
-        $this->status        = ResponseStatus::create($payload->e);
-        $this->paymentId     = $payload->o;
-        $this->transactionId = (string)$payload->t;
     }
 
     public function wasSuccessful(): bool
@@ -76,5 +67,14 @@ class SimplepayPaymentResponse implements PaymentResponse
     public function getPaymentId(): string
     {
         return $this->paymentId;
+    }
+
+    private function resolve(): void
+    {
+        $payload = json_decode(base64_decode($this->response, true));
+
+        $this->status = ResponseStatus::create($payload->e);
+        $this->paymentId = $payload->o;
+        $this->transactionId = (string) $payload->t;
     }
 }

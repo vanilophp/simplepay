@@ -19,7 +19,6 @@ use Vanilo\Payment\Contracts\PaymentRequest;
 use Vanilo\Simplepay\Concerns\HasSimplepayConfiguration;
 use Vanilo\Simplepay\Exceptions\InvalidSignatureException;
 use Vanilo\Simplepay\Exceptions\InvalidSimplepayRequestException;
-use Vanilo\Simplepay\Support\Hash;
 
 class SimplepayPaymentRequest implements PaymentRequest
 {
@@ -39,53 +38,15 @@ class SimplepayPaymentRequest implements PaymentRequest
 
     private string $view = 'simplepay::_request';
 
-
     public function getHtmlSnippet(array $options = []): ?string
     {
         return View::make(
             $this->view,
             [
-                'url'          => $this->createRemoteRequest(),
+                'url' => $this->createRemoteRequest(),
                 'autoRedirect' => $options['autoRedirect'] ?? false
             ]
         )->render();
-    }
-
-    private function createRemoteRequest(): string
-    {
-        $trx = new \SimplePayStart;
-        $trx->addConfig([
-            'HUF_MERCHANT'   => $this->merchanId,
-            'HUF_SECRET_KEY' => $this->secretKey,
-            'SANDBOX'        => $this->isSandbox,
-            'AUTOCHALLENGE'  => true
-        ]);
-
-        $trx->addData('currency', $this->currency);
-        $trx->addData('orderRef', $this->paymentId);
-        $trx->addData('methods', ['CARD']);
-        $trx->addData('total', $this->amount);
-        $trx->addData('customerEmail', $this->email);
-        $trx->addData('language', $this->lang);
-        $trx->addData('timeout', date('c', time() + 600));
-        $trx->addData('url', $this->returnUrl);
-        $trx->runStart();
-
-        $responseData = $trx->getReturnData();
-
-        if ($responseData && array_key_exists('errorCodes', $responseData)) {
-            throw new InvalidSimplepayRequestException(
-                sprintf(
-                    'Probably the request is missing a required param. Please check the documentation for the following error code: %s',
-                    $responseData['errorCodes'][0]
-                ));
-        }
-
-        if (!$responseData['responseSignatureValid']) {
-            throw new InvalidSignatureException('Response missing or not valied');
-        }
-
-        return $responseData['paymentUrl'];
     }
 
     public function willRedirect(): bool
@@ -168,5 +129,43 @@ class SimplepayPaymentRequest implements PaymentRequest
         $this->lang = $lang;
 
         return $this;
+    }
+
+    private function createRemoteRequest(): string
+    {
+        $trx = new \SimplePayStart();
+        $trx->addConfig([
+            'HUF_MERCHANT' => $this->merchanId,
+            'HUF_SECRET_KEY' => $this->secretKey,
+            'SANDBOX' => $this->isSandbox,
+            'AUTOCHALLENGE' => true
+        ]);
+
+        $trx->addData('currency', $this->currency);
+        $trx->addData('orderRef', $this->paymentId);
+        $trx->addData('methods', ['CARD']);
+        $trx->addData('total', $this->amount);
+        $trx->addData('customerEmail', $this->email);
+        $trx->addData('language', $this->lang);
+        $trx->addData('timeout', date('c', time() + 600));
+        $trx->addData('url', $this->returnUrl);
+        $trx->runStart();
+
+        $responseData = $trx->getReturnData();
+
+        if ($responseData && array_key_exists('errorCodes', $responseData)) {
+            throw new InvalidSimplepayRequestException(
+                sprintf(
+                    'Probably the request is missing a required param. Please check the documentation for the following error code: %s',
+                    $responseData['errorCodes'][0]
+                )
+            );
+        }
+
+        if (!$responseData['responseSignatureValid']) {
+            throw new InvalidSignatureException('Response missing or not valied');
+        }
+
+        return $responseData['paymentUrl'];
     }
 }

@@ -23,7 +23,6 @@ use Vanilo\Payment\Contracts\PaymentResponse;
 use Vanilo\Simplepay\Concerns\HasSimplepayInteraction;
 use Vanilo\Simplepay\Factories\RequestFactory;
 use Vanilo\Simplepay\Factories\ResponseFactory;
-use Vanilo\Simplepay\Messages\SimplepayPaymentResponse;
 
 class SimplepayPaymentGateway implements PaymentGateway
 {
@@ -44,10 +43,10 @@ class SimplepayPaymentGateway implements PaymentGateway
     {
         if (null === $this->requestFactory) {
             $this->requestFactory = new RequestFactory(
-                 $this->merchanId,
-                 $this->secretKey,
-                 $this->isSandbox,
-                 $this->returnUrl
+                $this->merchanId,
+                $this->secretKey,
+                $this->isSandbox,
+                $this->returnUrl
             );
         }
 

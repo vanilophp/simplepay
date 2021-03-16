@@ -24,7 +24,7 @@ final class RequestFactory
 
     public function create(Payment $payment, array $options = []): SimplepayPaymentRequest
     {
-        $result    = new SimplepayPaymentRequest();
+        $result = new SimplepayPaymentRequest();
         $billPayer = $payment->getPayable()->getBillPayer();
 
         $result
