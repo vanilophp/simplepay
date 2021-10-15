@@ -124,7 +124,7 @@ class SimplepayPaymentResponse implements PaymentResponse
 
         $this->responseStatus = ResponseStatus::create($payload->e);
         $this->paymentId = $payload->o;
-        $this->transactionId = (string)$payload->t;
+        $this->transactionId = (string) $payload->t;
 
         sleep(20);
         $query = new \SimplePayQuery();
@@ -147,7 +147,7 @@ class SimplepayPaymentResponse implements PaymentResponse
         $transaction = $response['transactions'][0];
 
         $this->transactionStatus = TransactionStatus::create($transaction['status']);
-        $this->transactionId = (string)$transaction['transactionId'];
+        $this->transactionId = (string) $transaction['transactionId'];
         $this->amountPaid = $transaction['total'];
     }
 }
