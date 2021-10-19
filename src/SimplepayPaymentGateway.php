@@ -23,6 +23,7 @@ use Vanilo\Payment\Contracts\PaymentResponse;
 use Vanilo\Simplepay\Concerns\HasSimplepayInteraction;
 use Vanilo\Simplepay\Factories\RequestFactory;
 use Vanilo\Simplepay\Factories\ResponseFactory;
+use Vanilo\Simplepay\Messages\SimplepayFrontendPaymentResponse;
 
 class SimplepayPaymentGateway implements PaymentGateway
 {
@@ -65,6 +66,20 @@ class SimplepayPaymentGateway implements PaymentGateway
         }
 
         return $this->responseFactory->create($request, $options);
+    }
+
+    public function processFrontendPaymentResponse(Request $request): SimplepayFrontendPaymentResponse
+    {
+        if (null === $this->responseFactory) {
+            $this->responseFactory = new ResponseFactory(
+                $this->merchanId,
+                $this->secretKey,
+                $this->isSandbox,
+                $this->returnUrl
+            );
+        }
+
+        return $this->responseFactory->createFrontendPaymentResponse($request);
     }
 
     public function isOffline(): bool

@@ -213,29 +213,12 @@ class Base
      */
     public function checkOrSetToJson($data = '')
     {
-        $json = '[]';
-        //empty
-        if ($data === '') {
-            $json =  json_encode([]);
+        try {
+            $json = json_encode($data);
+        } catch (Exception $exception) {
+            $json = $data;
         }
-        //array
-        if (is_array($data)) {
-            $json =  json_encode($data);
-        }
-        //object
-        if (is_object($data)) {
-            $json =  json_encode($data);
-        }
-        //json
-        $result = @json_decode($data);
-        if ($result !== null) {
-            $json =  $data;
-        }
-        //serialized
-        $result = @unserialize($data);
-        if ($result !== false) {
-            $json =  json_encode($result);
-        }
+
         return $json;
     }
 
@@ -647,6 +630,7 @@ class SimplePayIpn extends Base
         $this->setConfig();
 
         $this->validationResult = false;
+        $content = json_encode($content);
         if ($this->isCheckSignature($content, $signature)) {
             $this->validationResult = true;
         }

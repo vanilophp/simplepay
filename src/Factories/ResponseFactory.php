@@ -7,21 +7,28 @@ namespace Vanilo\Simplepay\Factories;
 use Illuminate\Http\Request;
 use Vanilo\Simplepay\Concerns\HasSimplepayInteraction;
 use Vanilo\Simplepay\Exceptions\MalformedSimplepayResponseException;
+use Vanilo\Simplepay\Messages\SimplepayFrontendPaymentResponse;
 use Vanilo\Simplepay\Messages\SimplepayPaymentResponse;
 
 final class ResponseFactory
 {
     use HasSimplepayInteraction;
 
-    public function create(Request $request, array $options = []): SimplepayPaymentResponse
+    public function create(Request $request): SimplepayPaymentResponse
     {
-        if ($request->get('r') && $request->get('s')) {
-            return new SimplepayPaymentResponse(
-                $this->merchanId,
-                $this->secretKey,
-                $this->isSandbox,
-                $request->get('r'),
-                $request->get('s')
+        return new SimplepayPaymentResponse(
+            $this->merchanId,
+            $this->secretKey,
+            $this->isSandbox,
+            $request->getContent()
+        );
+    }
+
+    public function createFrontendPaymentResponse(Request $request): SimplepayFrontendPaymentResponse
+    {
+        if ($request->get('r')) {
+            return new SimplepayFrontendPaymentResponse(
+                $request->get('r')
             );
         }
 
