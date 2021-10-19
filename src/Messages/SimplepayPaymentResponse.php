@@ -127,7 +127,7 @@ class SimplepayPaymentResponse implements PaymentResponse
 
         $this->checkIpn($ipnData);
 
-        $this->transactionId = (string)$ipnData['transactionId'];
+        $this->transactionId = (string) $ipnData['transactionId'];
         $this->paymentId = $ipnData['orderRef'];
 
         $query = new \SimplePayQuery();
@@ -151,7 +151,7 @@ class SimplepayPaymentResponse implements PaymentResponse
         $refundStatus = Arr::get($transaction, 'refundStatus');
         if ($refundStatus) {
             $this->transactionStatus = TransactionStatus::REFUND();
-            $this->status = $refundStatus == 'FULL' ? PaymentStatusProxy::REFUNDED() : PaymentStatusProxy::PARTIALLY_REFUNDED();
+            $this->status = 'FULL' == $refundStatus ? PaymentStatusProxy::REFUNDED() : PaymentStatusProxy::PARTIALLY_REFUNDED();
         } else {
             $this->transactionStatus = TransactionStatus::create($transaction['status']);
         }
