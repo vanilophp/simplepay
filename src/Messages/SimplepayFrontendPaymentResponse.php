@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Vanilo\Simplepay\Messages;
 
 use Vanilo\Simplepay\Models\FrontendReturnStatus;
-use Vanilo\Simplepay\Models\ResponseStatus;
 
 class SimplepayFrontendPaymentResponse
 {
