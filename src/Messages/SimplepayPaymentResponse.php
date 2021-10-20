@@ -21,14 +21,13 @@ use Vanilo\Payment\Contracts\PaymentStatus;
 use Vanilo\Payment\Models\PaymentStatusProxy;
 use Vanilo\Simplepay\Concerns\HasSimplepayCredentials;
 use Vanilo\Simplepay\Exceptions\InvalidSignatureException;
-use Vanilo\Simplepay\Models\ResponseStatus;
 use Vanilo\Simplepay\Models\TransactionStatus;
 
 class SimplepayPaymentResponse implements PaymentResponse
 {
     use HasSimplepayCredentials;
 
-    private string $response;
+    private string $ipnResponseJson;
 
     private string $signature;
 
@@ -42,17 +41,21 @@ class SimplepayPaymentResponse implements PaymentResponse
 
     private ?TransactionStatus $transactionStatus = null;
 
-    private ?ResponseStatus $responseStatus = null;
+    private \SimplePayIpn $ipn;
 
-    public function __construct(string $merchanId, string $secretKey, bool $isSandbox, string $response, string $signature)
+    public function __construct(string $merchanId, string $secretKey, bool $isSandbox, string $ipnResponseJson)
     {
-        $this->response = $response;
-        $this->signature = $signature;
+        $this->ipnResponseJson = $ipnResponseJson;
         $this->merchanId = $merchanId;
         $this->secretKey = $secretKey;
         $this->isSandbox = $isSandbox;
 
         $this->resolve();
+    }
+
+    public function displayIpnConfirmation(): bool
+    {
+        return $this->ipn->runIpnConfirm();
     }
 
     public function wasSuccessful(): bool
@@ -120,13 +123,13 @@ class SimplepayPaymentResponse implements PaymentResponse
 
     private function resolve(): void
     {
-        $payload = json_decode(base64_decode($this->response, true));
+        $ipnData = json_decode($this->ipnResponseJson, true);
 
-        $this->responseStatus = ResponseStatus::create($payload->e);
-        $this->paymentId = $payload->o;
-        $this->transactionId = (string) $payload->t;
+        $this->checkIpn($ipnData);
 
-        sleep(20);
+        $this->transactionId = (string) $ipnData['transactionId'];
+        $this->paymentId = $ipnData['orderRef'];
+
         $query = new \SimplePayQuery();
         $query->addConfig([
             'HUF_MERCHANT' => $this->merchanId,
@@ -143,11 +146,32 @@ class SimplepayPaymentResponse implements PaymentResponse
             throw new InvalidSignatureException();
         }
 
-        dd($response);
         $transaction = $response['transactions'][0];
 
-        $this->transactionStatus = TransactionStatus::create($transaction['status']);
-        $this->transactionId = (string) $transaction['transactionId'];
-        $this->amountPaid = $transaction['total'];
+        $refundStatus = Arr::get($transaction, 'refundStatus');
+        if ($refundStatus) {
+            $this->transactionStatus = TransactionStatus::REFUND();
+            $this->status = 'FULL' == $refundStatus ? PaymentStatusProxy::REFUNDED() : PaymentStatusProxy::PARTIALLY_REFUNDED();
+        } else {
+            $this->transactionStatus = TransactionStatus::create($transaction['status']);
+        }
+
+        $this->amountPaid = $transaction['remainingTotal'];
+    }
+
+    private function checkIpn(array $data): void
+    {
+        $ipn = new \SimplePayIpn();
+        $ipn->addConfig([
+            'HUF_MERCHANT' => $this->merchanId,
+            'HUF_SECRET_KEY' => $this->secretKey,
+            'SANDBOX' => $this->isSandbox,
+        ]);
+
+        if (!$ipn->isIpnSignatureCheck($data)) {
+            throw new InvalidSignatureException();
+        }
+
+        $this->ipn = $ipn;
     }
 }
